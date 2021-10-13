@@ -48,7 +48,23 @@ function scrollFunction() {
 }
 
 function topFunction() {
+  document.body.scrollTop = 0;
   document.documentElement.scrollTop = 0;
+  returnToDefaultState();
+}
+
+function returnToDefaultState() {
+  for (const section of sections) {
+    const li = document.querySelector(`.${section.id}`);
+
+    if (section.id === "section1") {
+      section.className = "your-active-class";
+      li.classList.add("active-nav");
+    } else {
+      li.classList.remove("active-nav");
+      section.className = "";
+    }
+  }
 }
 /**
  * End Helper Functions
@@ -62,10 +78,16 @@ function buildNavigationMenu() {
     const a = document.createElement("a");
     const li = document.createElement("li");
 
-    a.href = `#section${i + 1}`;
+    li.addEventListener("click", function () {
+      element.scrollIntoView({ behavior: "smooth" });
+    });
     a.className = "menu__link";
     a.innerText = `Section ${i + 1}`;
     li.appendChild(a);
+    li.className = `section${i + 1}`;
+    if (li.className === "section1") {
+      li.classList.add("active-nav");
+    }
     ul.appendChild(li);
   });
 }
@@ -74,10 +96,18 @@ function buildNavigationMenu() {
 function setActtiveSection() {
   document.addEventListener("scroll", function () {
     for (const section of sections) {
+      const li = document.querySelector(`.${section.id}`);
+
       if (isInViewport(section) && section.className !== "your-active-class") {
         section.className = "your-active-class";
-      } else if (section.className === "your-active-class") {
-        section.className = "";
+        li.classList.add("active-nav");
+      } else {
+        for (const s of sections) {
+          if (s.className === "your-active-class" && s !== section) {
+            section.className = "";
+            li.classList.remove("active-nav");
+          }
+        }
       }
     }
   });
@@ -92,9 +122,9 @@ function setActtiveSection() {
  */
 
 // Build menu
-buildNavigationMenu();
-
 // Scroll to section on link click
+
+buildNavigationMenu();
 
 // Set sections as active
 setActtiveSection();
@@ -106,12 +136,13 @@ window.onscroll = function () {
 
 // Hide navigation menu while not scrolling
 
-document.addEventListener("scroll", function () {
-  if (timer !== null) {
-    ul.style.display = "block";
-    clearTimeout(timer);
-  }
-  timer = setTimeout(function () {
-    ul.style.display = "none";
-  }, 1000);
-});
+/* document.addEventListener("scroll", function () {
+   if (timer !== null) {
+     ul.style.display = "block";
+     clearTimeout(timer);
+   }
+   timer = setTimeout(function () {
+     ul.style.display = "none";
+   }, 4000);
+ });
+  */

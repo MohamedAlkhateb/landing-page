@@ -252,3 +252,7 @@ section.your-active-class .landing__container::after {
 #myBtn:hover {
   background-color: #555; /* Add a dark-grey background on hover */
 }
+
+.active-nav {
+  background-color: rgb(59, 21, 196);
+}
