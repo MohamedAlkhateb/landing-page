@@ -21,23 +21,17 @@ const ul = document.querySelector("ul");
 const sections = document.querySelectorAll("section");
 const mybutton = document.getElementById("myBtn");
 let timer = null;
+const intersectionObserverOptions = {
+  root: null,
+  rootMargin: "0px",
+  threshold: 0.5,
+};
 
 /**
  * End Global Variables
  * Start Helper Functions
  *
  */
-
-function isInViewport(el) {
-  const rect = el.getBoundingClientRect();
-  return (
-    rect.top >= 0 &&
-    rect.left >= 0 &&
-    rect.bottom <=
-      (window.innerHeight || document.documentElement.clientHeight) &&
-    rect.right <= (window.innerWidth || document.documentElement.clientWidth)
-  );
-}
 
 function scrollFunction() {
   if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
@@ -65,6 +59,23 @@ function returnToDefaultState() {
       section.className = "";
     }
   }
+}
+
+function intersectionObserverCallback(entries, observer) {
+  entries.forEach((entry) => {
+    target = entry.target;
+    const li = document.querySelector(`.${target.id}`);
+    if (entry.isIntersecting) {
+      sections.forEach((section) => {
+        const li = document.querySelector(`.${section.id}`);
+        section.classList.remove("your-active-class");
+        li.classList.remove("active-nav");
+      });
+
+      target.classList.add("your-active-class");
+      li.classList.add("active-nav");
+    }
+  });
 }
 /**
  * End Helper Functions
@@ -94,23 +105,13 @@ function buildNavigationMenu() {
 
 // Add class 'active' to section when near top of viewport
 function setActtiveSection() {
-  document.addEventListener("scroll", function () {
-    for (const section of sections) {
-      const li = document.querySelector(`.${section.id}`);
-
-      if (isInViewport(section) && section.className !== "your-active-class") {
-        section.className = "your-active-class";
-        li.classList.add("active-nav");
-      } else {
-        for (const s of sections) {
-          if (s.className === "your-active-class" && s !== section) {
-            section.className = "";
-            li.classList.remove("active-nav");
-          }
-        }
-      }
-    }
-  });
+  let observer = new IntersectionObserver(
+    intersectionObserverCallback,
+    intersectionObserverOptions
+  );
+  for (section of sections) {
+    observer.observe(section);
+  }
 }
 
 // Scroll to anchor ID using scrollTO event
@@ -136,13 +137,12 @@ window.onscroll = function () {
 
 // Hide navigation menu while not scrolling
 
-/* document.addEventListener("scroll", function () {
-   if (timer !== null) {
-     ul.style.display = "block";
-     clearTimeout(timer);
-   }
-   timer = setTimeout(function () {
-     ul.style.display = "none";
-   }, 4000);
- });
-  */
+document.addEventListener("scroll", function () {
+  if (timer !== null) {
+    ul.style.display = "block";
+    clearTimeout(timer);
+  }
+  timer = setTimeout(function () {
+    ul.style.display = "none";
+  }, 4000);
+});
